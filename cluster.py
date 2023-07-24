@@ -26,35 +26,38 @@ class cluster:
             
     
 def get_clusters(time_window_df):
+    #If no reports on this window, return
+    if time_window_df.shape[0] == 0:
+        return 0
+    else :
+        X = time_window_df["Lon"].values
+        Y = time_window_df["Lat"].values
+        points = np.array([[X[i],Y[i]] for i in range(len(X))])
 
-    X = time_window_df["Lon"].values
-    Y = time_window_df["Lat"].values
-    points = np.array([[X[i],Y[i]] for i in range(len(X))])
+        #Slow
+        dist_matrix = distance_matrix(X,Y)
+        
+        db = DBSCAN(eps = 40, min_samples=1, metric="precomputed").fit(dist_matrix)
+        labels = db.labels_
 
-    #Slow
-    dist_matrix = distance_matrix(X,Y)
-    
-    db = DBSCAN(eps = 40, min_samples=1, metric="precomputed").fit(dist_matrix)
-    labels = db.labels_
-
-    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-
-
-
-    clusters = {}
-    for i in range(n_clusters_):
-        clusters[i] = []
+        n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
 
 
-    for i in range(len(labels)):
-        clusters[labels[i]].append(points[i])
-    
-    actual_clusters = []
-    for c in clusters.keys():
-        aa = np.array(clusters[c])
-        C = cluster(aa)
-        actual_clusters.append(C)
-    return actual_clusters
+
+        clusters = {}
+        for i in range(n_clusters_):
+            clusters[i] = []
+
+
+        for i in range(len(labels)):
+            clusters[labels[i]].append(points[i])
+        
+        actual_clusters = []
+        for c in clusters.keys():
+            aa = np.array(clusters[c])
+            C = cluster(aa)
+            actual_clusters.append(C)
+        return actual_clusters
 
 #Computes the distance matrix 
 def distance_matrix(X,Y):

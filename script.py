@@ -8,34 +8,25 @@ def make_time_windows(day_datetime, window_size):
 
 r = rrfs.Rrfs()
 
-start = pd.Timestamp(2023, 5, 8)
+start = pd.Timestamp(2023, 5, 9)
 end = pd.Timestamp(2023, 6, 30)
 
-print(pd.date_range(start, end, freq='1D')[0])
 for day in pd.date_range(start, end, freq='1D'):
+    window_size = 3
+    time_windows = make_time_windows(day, window_size)
 
-	window_size = 3
-	time_windows = make_time_windows(day, window_size)
+    for tw in time_windows:
+        forecast_hours_short = [3, 4, 5, 6]
+        forecast_hours_long = [15, 16, 17, 18]
 
+        #3 hour forecast
+        init_time_short = tw - pd.Timedelta(hours=3)
+        for hour in forecast_hours_short:
 
-	for tw in time_windows:
-		forecast_hour = tw.hour
+            r.download_outputs(init_time_short, hour)
 
-# 		#3 hour forecast
-		init_time = tw - pd.Timedelta(hours=3)
-# 		r.download_outputs(init_time, forecast_hour)
-# 		r.download_outputs(init_time, forecast_hour + 1)
-# 		r.download_outputs(init_time, forecast_hour + 2)
-        r.download_outputs(init_time, forecast_hour + 3)
+        #15 hour forecast
+        init_time_long = tw - pd.Timedelta(hours=15)
+        for hour in forecast_hours_long:
 
-# 		#15 hour forecast
-		init_time = tw - pd.Timedelta(hours=15)
-# 		r.download_outputs(init_time, forecast_hour)
-# 		r.download_outputs(init_time, forecast_hour + 1)
-# 		r.download_outputs(init_time, forecast_hour + 2)
-		# print(f"downloaded forecasts for {tw}")
-        r.download_outputs(init_time, forecast_hour + 3)
-
-
-
-
+            r.download_outputs(init_time_long, hour)

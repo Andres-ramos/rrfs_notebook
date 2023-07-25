@@ -6,6 +6,7 @@ import numpy as np
 from rrfs import rrfs
 import xarray as xr
 
+import sys
 
 from storm_report import add_time_window_column 
 from cluster import get_clusters
@@ -305,12 +306,14 @@ def max_2_5_uh_surrogates(model_outputs, thresholds):
 #Constants
 thresholds = {"wind":20, "max_wind": 25, "max_downdraft": -22, "gust": 32, "uh_25": 375, "uh_03": 150}
 
-day = pd.Timestamp(2023, 6, 14)
-
+#Gets the datetime from commandline args
+day_input = sys.argv[1]
+day = pd.Timestamp(day_input)
+month = day.strftime('%m')
 #Gets the wind reports for the given day
 wind_reports_df = pd.read_csv("./wind_reports.csv")
 wind_reports_df.index = wind_reports_df.datetime
-wind_reports = wind_reports_df[(wind_reports_df['datetime'] >=f'2023-06-{day.day} 00:00:00') & (wind_reports_df['datetime'] < f'2023-06-{day.day + 1} 00:00:00')]   
+wind_reports = wind_reports_df[(wind_reports_df['datetime'] >=f'2023-{month}-{day.day} 00:00:00') & (wind_reports_df['datetime'] < f'2023-{month}-{day.day + 1} 00:00:00')]   
 wind_reports["datetime"] = [pd.Timestamp(date) for date in wind_reports["datetime"]]
 
 #Prepares the dataframe to filter by time window
@@ -351,7 +354,8 @@ for sreports in grouped_reports:
         day_analysis[var]["false_alarms"] += analysis[var]["data"]["false_alarms"]
         window_analysis[var] = analysis[var]["window_analysis"]
     #Return the results 
-
+    # a = pd.DataFrame.from_dict(window_analysis, orient='index')
+    # break
 
 day_analysis_df = pd.DataFrame.from_dict(day_analysis, orient='index')
 day_analysis_df.to_csv(f"./csvs/{day}.csv")

@@ -327,18 +327,20 @@ day_analysis = {}
 
 for sreports in grouped_reports:
     window_analysis = {}
+    window_datetime = sreports[0]
+    storm_reports = sreports[1]
     #Get the surrogate storm reports
     # print("time window", sreports[0])
     # print("number of reports", sreports[1].shape[0])
     # print("storm reports", sreports[1]["Lat"])
-    surrogate_reports_df = get_surrogate_storm_reports(window_datetime=sreports[0], 
+    surrogate_reports_df = get_surrogate_storm_reports(window_datetime=window_datetime, 
                                                 window_size=3,  
                                                 thresholds=thresholds,
                                                 forecast_h=3)
 
     
     #Create time window object 
-    w = time_window(storm_report_df=sreports[1],rrfs_surrogate_reports_dict=surrogate_reports_df)
+    w = time_window(storm_report_df=storm_reports,rrfs_surrogate_reports_dict=surrogate_reports_df)
 
     analysis = w.analysis()
     
@@ -350,10 +352,7 @@ for sreports in grouped_reports:
         window_analysis[var] = analysis[var]["window_analysis"]
     #Return the results 
 
-    print("window analysis",window_analysis)
-    print("day analysis", day_analysis)    
-    break 
 
-
-
+day_analysis_df = pd.DataFrame.from_dict(day_analysis, orient='index')
+day_analysis_df.to_csv(f"./csvs/{day}.csv")
 

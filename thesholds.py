@@ -5,7 +5,7 @@ from rrfs import rrfs
 import xarray as xr
 import json
 from pipeline.datasets import make_wind_dt, make_max_wind_dt, make_25_UH_dt, make_03_UH_dt, make_downdraft_dt, make_gust_dt
-
+import numpy as np
 
 def get_surrogate_numbers(window_datetime, window_size, thresholds, forecast_h):
     init_hour = pd.Timestamp(window_datetime) - pd.Timedelta(hours=forecast_h)
@@ -215,12 +215,12 @@ day = pd.Timestamp(day_input)
 
 
 threshold_ranges = {
-    "wind": range(18, 24, 0.25),
-    "max_wind": range(22, 30,0.25),
-    "max_downdraft": range(-14, -32, .25),
-    "gust": range(28,34,.25),
-    "uh_25": range(250,450, 10),
-    "uh_03": range(100, 230, 5)
+    "wind": np.arange(18, 24, 0.25),
+    "max_wind": np.arange(22, 30,0.25),
+    "max_downdraft": np.arange(-14, -32, .25),
+    "gust": np.arange(28,34,.25),
+    "uh_25": np.arange(250,450, 10),
+    "uh_03": np.arange(100, 230, 5)
 }
 
 time_windows = make_time_windows(day, 3)

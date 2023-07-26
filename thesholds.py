@@ -215,12 +215,12 @@ day = pd.Timestamp(day_input)
 
 
 threshold_ranges = {
-    "wind": range(14, 38,2),
-    "max_wind": range(14, 38,2),
-    "max_downdraft": range(-10, -32, -2),
-    "gust": range(18,40,2),
-    "uh_25": range(300,410, 10),
-    "uh_03": range(100, 210, 10)
+    "wind": range(18, 24, 0.25),
+    "max_wind": range(22, 30,0.25),
+    "max_downdraft": range(-14, -32, .25),
+    "gust": range(28,34,.25),
+    "uh_25": range(250,450, 10),
+    "uh_03": range(100, 230, 5)
 }
 
 time_windows = make_time_windows(day, 3)

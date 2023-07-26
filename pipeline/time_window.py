@@ -1,4 +1,4 @@
-from cluster import get_clusters
+from pipeline.cluster import get_clusters
 import numpy as np
 
 class time_window:

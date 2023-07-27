@@ -202,8 +202,56 @@ def max_2_5_uh_surrogates(model_outputs, thresholds):
     return surrogate_df
 
 
-    
 
+def run_analysis(thresholds, forecast_h, folder, grouped_reports):
+    #
+    day_analysis = {}
+    #15 hour forecasts
+    for sreports in grouped_reports:
+        window_analysis = {}
+        window_datetime = sreports[0]
+        storm_reports = sreports[1]
+        #Get the surrogate storm reports
+        # print("time window", sreports[0])
+        # print("number of reports", sreports[1].shape[0])
+        # print("storm reports", sreports[1]["Lat"])
+        surrogate_reports_df = get_surrogate_storm_reports(window_datetime=window_datetime, 
+                                                    window_size=3,  
+                                                    thresholds=thresholds,
+                                                    forecast_h=forecast_h)
+
+        
+        #Create time window object 
+        w = time_window(storm_report_df=storm_reports,rrfs_surrogate_reports_dict=surrogate_reports_df)
+
+        analysis = w.analysis()
+        
+        for var in analysis.keys():
+            day_analysis[var] = {"hits": 0, "misses": 0, "false_alarms": 0}
+            day_analysis[var]["hits"] += analysis[var]["data"]["hits"]
+            day_analysis[var]["misses"] += analysis[var]["data"]["misses"]
+            day_analysis[var]["false_alarms"] += analysis[var]["data"]["false_alarms"]
+            window_analysis[var] = analysis[var]["window_analysis"]
+        #Return the results 
+        # a = pd.DataFrame.from_dict(window_analysis, orient='index')
+        break
+
+    day_analysis_df = pd.DataFrame.from_dict(day_analysis, orient='index')
+    day_analysis_df.to_csv(f"./{folder}/{day}.csv")    
+
+
+def get_folder(thresholds, forecast_h):
+    return f"{thresholds}-{forecast_h}"
+
+def get_thresholds(thresholds):
+    thresholds_nine_to_one = {'wind': 19.86455982, 'max_wind': 24.87193902, 'max_downdraft': -15.47703168, 'gust': 29.73619439, 'uh_03': 119.13697761, 'uh_25': 283.96103896}
+    thresholds_three_to_one = {'wind': 21.18029763, 'max_wind': 26.75973054, 'max_downdraft': -18.11128219, 'gust': 31.61344086, 'uh_03': 150.07628866, 'uh_25': 360.64686152}
+    if thresholds == "3t1":
+        return thresholds_three_to_one
+    elif thresholds == "9t1":
+        return thresholds_nine_to_one
+    else :
+        raise Exception("no threshold")
 
 #SCRIPT START -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -215,10 +263,18 @@ def max_2_5_uh_surrogates(model_outputs, thresholds):
 # gust:  (18,40,2)  
 
 #Constants
-thresholds = {"wind":20, "max_wind": 25, "max_downdraft": -22, "gust": 32, "uh_25": 375, "uh_03": 150}
+# thresholds = {"wind":20, "max_wind": 25, "max_downdraft": -22, "gust": 32, "uh_25": 375, "uh_03": 150}
+
 
 #Gets the datetime from commandline args
-day_input = sys.argv[1]
+day_input = sys.argv[1] 
+forecast_hour = int(sys.argv[2])
+thresholds = sys.argv[3]
+
+folder = get_folder(thresholds, forecast_hour)
+t = get_thresholds(thresholds)
+
+
 day = pd.Timestamp(day_input)
 month = day.strftime('%m')
 #Gets the wind reports for the given day
@@ -234,40 +290,7 @@ grouped_reports = wind_reports.groupby('window')
 
 #Get the rrfs stuff for the correct day
 
+run_analysis(t, forecast_hour, folder, grouped_reports)
 
-#Has to be done on a per variable basis
-# analysis_obj = 
-day_analysis = {}
 
-for sreports in grouped_reports:
-    window_analysis = {}
-    window_datetime = sreports[0]
-    storm_reports = sreports[1]
-    #Get the surrogate storm reports
-    # print("time window", sreports[0])
-    # print("number of reports", sreports[1].shape[0])
-    # print("storm reports", sreports[1]["Lat"])
-    surrogate_reports_df = get_surrogate_storm_reports(window_datetime=window_datetime, 
-                                                window_size=3,  
-                                                thresholds=thresholds,
-                                                forecast_h=3)
-
-    
-    #Create time window object 
-    w = time_window(storm_report_df=storm_reports,rrfs_surrogate_reports_dict=surrogate_reports_df)
-
-    analysis = w.analysis()
-    
-    for var in analysis.keys():
-        day_analysis[var] = {"hits": 0, "misses": 0, "false_alarms": 0}
-        day_analysis[var]["hits"] += analysis[var]["data"]["hits"]
-        day_analysis[var]["misses"] += analysis[var]["data"]["misses"]
-        day_analysis[var]["false_alarms"] += analysis[var]["data"]["false_alarms"]
-        window_analysis[var] = analysis[var]["window_analysis"]
-    #Return the results 
-    # a = pd.DataFrame.from_dict(window_analysis, orient='index')
-    # break
-
-day_analysis_df = pd.DataFrame.from_dict(day_analysis, orient='index')
-day_analysis_df.to_csv(f"./csvs/{day}.csv")
 

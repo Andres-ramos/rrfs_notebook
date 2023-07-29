@@ -8,5 +8,5 @@ module purge
 module use -a /apps/contrib/miniconda3-noaa-gsl/modulefiles
 module load miniconda3
 conda activate /work2/noaa/wrfruc/aramos/envs
-python thresholds.py $1
+python hrrr_thresholds.py $1
 

@@ -236,9 +236,7 @@ for window in time_windows:
                                     forecast_h=3)
     
     results = aggregate(results, numbers)
-    break 
 
-print(results)
 day_file = day.strftime("%Y-%m-%d")
 
 with open(f"./{hrrr_thresholds_folder}/{day_file}.json", "w") as outfile:

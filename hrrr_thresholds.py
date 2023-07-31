@@ -221,8 +221,8 @@ threshold_ranges = {
     "wind": np.arange(18, 24, 0.25),
     "max_wind": np.arange(22, 30,0.25),
     "gust": np.arange(28,34,.25),
-    "uh_25": np.arange(100,410, 10),
-    "uh_03": np.arange(100, 410, 10)
+    "uh_25": np.arange(100,410, 5),
+    "uh_03": np.arange(100, 410, 5)
 }
 
 time_windows = make_time_windows(day, 3)
@@ -237,6 +237,7 @@ for window in time_windows:
     
     results = aggregate(results, numbers)
 
+print(results)
 day_file = day.strftime("%Y-%m-%d")
 
 with open(f"./{hrrr_thresholds_folder}/{day_file}.json", "w") as outfile:

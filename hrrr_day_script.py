@@ -5,6 +5,7 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 from rrfs import hrrr
 import xarray as xr
+import os
 
 import sys
 
@@ -37,8 +38,8 @@ def get_surrogate_storm_reports(window_datetime, window_size, thresholds, foreca
 
     surrogate_reports = {
         'max_wind': max_10_wind_surrogates(model_outputs, thresholds['max_wind']),
-        # 'uh_25': max_2_5_uh_surrogates(model_outputs, thresholds["uh_25"]),
-        # 'uh_03': max_0_3_uh_surrogates(model_outputs, thresholds["uh_03"]),
+        'uh_25': max_2_5_uh_surrogates(model_outputs, thresholds["uh_25"]),
+        'uh_03': max_0_3_uh_surrogates(model_outputs, thresholds["uh_03"]),
         # 'max_downdraft': max_downdraft_surrogate_numbers(model_outputs, thresholds["max_downdraft"]),
         'wind': wind_10_m_surrogates(model_outputs, thresholds["wind"]),
         'gust': gust_surrogates(model_outputs, thresholds["gust"])
@@ -229,8 +230,8 @@ def run_analysis(thresholds, forecast_h, folder, grouped_reports):
             window_analysis[var] = analysis[var]["window_analysis"]
         #Return the results 
         # a = pd.DataFrame.from_dict(window_analysis, orient='index')
-        break
 
+    check_folder(folder_results)
     day_analysis_df = pd.DataFrame.from_dict(day_analysis, orient='index')
     day_analysis_df.to_csv(f"./{folder_results}/{folder}/{day}.csv")    
 
@@ -240,14 +241,28 @@ def get_folder(thresholds, forecast_h):
 
 def get_thresholds(thresholds):
     #TODO: ADD uh once we figure out which level is which UH
-    thresholds_nine_to_one = {'wind': 19.12617215, 'max_wind': 23.1943595, 'gust': 27.40786234}
-    thresholds_three_to_one = {'wind': 20.30155642, 'max_wind': 25.1610338, 'gust': 29.23231171}
+    thresholds_nine_to_one = {'wind': 19.12891689, 'max_wind': 23.19179244, 'gust': 27.40786234, 'uh_25': 106.77388836, 'uh_03': 49.60618796}
+    thresholds_three_to_one = {'wind': 20.32279861, 'max_wind': 25.16078732, 'gust': 29.23231171, 'uh_25': 142.2990099, 'uh_03': 64.13232734}
     if thresholds == "3t1":
         return thresholds_three_to_one
     elif thresholds == "9t1":
         return thresholds_nine_to_one
     else :
         raise Exception("no threshold")
+    
+
+def check_folder(folder_name):
+    three_to_one = "3t1"
+    nine_to_one = "9t1"
+    if os.path.exists(f"./{folder_name}"):
+        return 
+    else :
+        os.makedirs(f"./{folder_name}")
+        os.makedirs(f"./{folder_name}/{three_to_one}-3")
+        os.makedirs(f"./{folder_name}/{three_to_one}-15")
+        os.makedirs(f"./{folder_name}/{nine_to_one}-3")
+        os.makedirs(f"./{folder_name}/{nine_to_one}-15")
+        
 
 #SCRIPT START -----------------------------------------------------------------------------------------------------------------------------------------------------------
 

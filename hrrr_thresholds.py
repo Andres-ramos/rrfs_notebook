@@ -222,7 +222,7 @@ threshold_ranges = {
     "max_wind": np.arange(22, 30,0.25),
     "gust": np.arange(20,34,.25),
     "uh_25": np.arange(50,410, 5),
-    "uh_03": np.arange(50, 410, 5)
+    "uh_03": np.arange(30, 410, 5)
 }
 
 time_windows = make_time_windows(day, 3)
